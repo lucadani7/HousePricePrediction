@@ -1,0 +1,68 @@
+# Byte-compiled / optimized / C extensions
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# uv / packaging
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
+data/
+models/*.joblib
+.ipynb_checkpoints/
+
+# Jupyter
+*/.ipynb_checkpoints/
+
+# ML artifacts (keep directory placeholders if needed)
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.pth
+*.onnx
+models/**
+!models/.gitkeep
+data/**
+!data/.gitkeep
+reports/**
+!reports/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
