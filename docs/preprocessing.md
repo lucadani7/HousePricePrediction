@@ -54,9 +54,26 @@ Instead of blind global imputation, the Ames dataset contains clear structural d
 * **Functional:** Imputed with its standard default value (`'Typ'`), as stated in `data_description.txt`.
 * **General Pipeline Defaults:** Remaining unhandled numerical columns receive the **median** (computed on train), and remaining categorical columns receive the **mode** (computed on train).
 
-## 7. Feature Engineering & Transformations
-* **PoolArea:** Transformed into a binary indicator feature: `HasPool` (`1` if `PoolArea > 0`, else `0`), replacing the continuous area since 99.5% of houses have no pool.
-* **MoSold (Month Sold):** Treated as a **categorical variable** (nominal) rather than a continuous quantity, as months represent a cyclic calendar timeline.
+## 7. Feature Engineering (Derived Variables)
+
+Specific features are transformed or combined to better capture their relationship with the target variable, reducing fragmentation and noise. 
+
+**Accepted Features:**
+* **`HasPool`**: Binary indicator (1 if `PoolArea > 0`, else 0). The original `PoolArea` column is dropped immediately, as 99.5% of houses lack a pool.
+* **`TotalSF`**: Sum of `TotalBsmtSF`, `1stFlrSF`, and `2ndFlrSF`. Captures the total usable architectural space. It shows a stronger correlation with `log(SalePrice)` (0.78) than `GrLivArea` (0.70) or any individual floor.
+* **`TotalBath`**: Sum of all bathrooms (`FullBath` + `0.5 * HalfBath` + `BsmtFullBath` + `0.5 * BsmtHalfBath`). Consolidates fragmented bathroom counts into a single strong indicator of utility, yielding a correlation of 0.67 compared to the best individual component (`FullBath` at 0.59).
+* **`TotalPorchSF`**: Sum of `WoodDeckSF`, `OpenPorchSF`, `EnclosedPorch`, `3SsnPorch`, and `ScreenPorch`. Aggregates various outdoor spaces, achieving a correlation of 0.40 versus the highest individual component (`WoodDeckSF` at 0.33).
+* **Type Casting (`MSSubClass`, `MoSold`)**: Converted safely to strings (ignoring `.0` float artifacts and preserving `NaN`) to route them to the nominal pipeline (one-hot encoding) rather than treating them as numerical.
+
+**Retention of Original Components:**
+Unlike `PoolArea` (which is explicitly dropped), the individual components forming `TotalSF`, `TotalBath`, and `TotalPorchSF` are **kept** in the dataset. This allows the model (particularly regularized models like Ridge, which handle collinearity well) to utilize both the overarching aggregated signals and the specific structural details.
+
+**Experimentation (`add_derived` parameter):**
+To rigorously evaluate whether these derived totals genuinely improve predictive performance, the transformation step incorporates an `add_derived` toggle. This allows these features to be turned on or off during Step 3 (Model Selection & Tuning) to quantify their exact impact via cross-validation.
+
+**Rejected Features:**
+* **`HouseAge` / `RemodelAge`**: Calculated as `YrSold` minus `YearBuilt` / `YearRemodAdd`. Because the sales window in the dataset spans only 5 years (2006–2010), these derived ages are almost perfectly negatively correlated with the original years. They offer no new information and introduce collinearity. Outliers (e.g., negative ages for houses sold prior to completion) also unnecessarily complicate the transformation. We retain the original year columns instead.
+
 
 ## 8. Categorical Encoding Strategy
 
