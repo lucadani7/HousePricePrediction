@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from sklearn.exceptions import NotFittedError
-from housepriceprediction.transformers import NeighborhoodMedianImputer
+from housepriceprediction.transformers.neighborhood_median import NeighborhoodMedianImputer
 
 
 def test_neighborhood_median_imputer_basic():

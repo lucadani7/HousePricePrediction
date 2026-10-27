@@ -31,13 +31,20 @@ The following columns are permanently dropped from the feature set:
   * `Heating`
   * `PoolQC`
 
-## 6. Missing Value Imputation Strategy & General Principle
-* **General Principle for Conditional Imputation:** A missing value means "absent" only if the core component itself is absent (e.g., `GarageType` / `BsmtQual` is `"None"`, or `MasVnrArea` is `0` or missing). If the feature or asset exists (e.g., `GarageType != "None"`, or `MasVnrArea > 0`), a missing detail (like `GarageQual`, `GarageFinish`, or `MasVnrType`) is an *unknown* value, not an absence, and must be imputed with the training **mode** (categorical) or **median** (numerical).
-* **Structural NA Categorical Columns (14 features):** Imputed with `"None"` (categorical absence) following the principle above.
-* **Masonry Features:** `MasVnrType` and `MasVnrArea` follow the conditional rule (if area is 0/missing and type is missing $\to$ `"None"`/`0`; if area > 0 but type is missing $\to$ training mode for type).
-* **LotFrontage:** Imputed using the **median value of the respective Neighborhood** (computed strictly on training data).
+## 6. Structural Missing Values Handling (ConditionalImputer)
+
+Instead of blind global imputation, the Ames dataset contains clear structural dependencies where the physical absence of an element dictates the imputation value:
+- **Pure "None" columns (`Alley`, `Fence`, `MiscFeature`)**: Absence represents a simple negation of the feature and is filled directly with `"None"`.
+- **Parent-Dependent Structural Groups**:
+  - **Basement (`TotalBsmtSF` as parent)**: If the basement area is 0 or missing, the related numeric columns receive `0` and categorical columns (`BsmtQual`, `BsmtCond`, etc.) receive `"None"`. If the basement exists, missing values are imputed with the median (numeric) or mode (categorical) calculated **strictly on houses that have a basement**.
+  - **Garage (`GarageType` as parent)**: If the garage type is missing/absent, details receive `0` / `"None"`. If the garage exists, statistics learned from the subset of houses with a garage are imputed.
+  - **Exterior Veneer (`MasVnrArea` as parent)**: An area of 0 or missing implies the absence of veneer (`"None"`), while a non-zero area enforces imputing the type with the mode calculated on houses with veneer.
+  - **Fireplace (`Fireplaces` as parent)**: A fireplace count equal to 0 causes `FireplaceQu` to be `"None"`.
+  - 
+### Other Missing Values
+* **LotFrontage:** Imputed using the **median value of the respective Neighborhood** (computed strictly on training data), via `NeighborhoodMedianImputer`.
 * **Electrical:** Imputed with the most frequent value (**mode** of the training set, fallback to `'SBrkr'`).
-* **Functional:** Imputed with its standard default value (`'Typ'`).
+* **Functional:** Imputed with its standard default value (`'Typ'`), as stated in `data_description.txt`.
 * **General Pipeline Defaults:** Remaining unhandled numerical columns receive the **median** (computed on train), and remaining categorical columns receive the **mode** (computed on train).
 
 ## 7. Feature Engineering & Transformations
