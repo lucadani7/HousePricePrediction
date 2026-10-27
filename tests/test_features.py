@@ -1,4 +1,4 @@
-from pathlib import Path
+from housepriceprediction.config import DATA_RAW
 import pandas as pd
 import pytest
 
@@ -13,8 +13,6 @@ from housepriceprediction.transformers import (
     NeighborhoodMedianImputer,
     ConditionalImputer,
 )
-
-DATA_RAW = Path("data/raw")
 
 
 @pytest.mark.skipif(not (DATA_RAW / "train.csv").exists(), reason="Raw data not available")

@@ -21,7 +21,7 @@ ORDINAL_CATEGORIES = {
     "Functional": ("Sal", "Sev", "Maj2", "Maj1", "Mod", "Min2", "Min1", "Typ"),
 }
 
-# Nominal categorical columns (encoded via OneHotEncoder) - Added LandSlope, LotShape; removed Heating
+# Nominal categorical columns (one-hot encoded)
 NOMINAL_COLUMNS = (
     "MSZoning", "LandContour", "LotConfig", "Neighborhood", "Condition1",
     "BldgType", "HouseStyle", "RoofStyle", "Exterior1st", "Exterior2nd",
@@ -31,7 +31,7 @@ NOMINAL_COLUMNS = (
     "LandSlope", "LotShape"
 )
 
-# Numeric features (imputed and scaled) - Removed PoolArea (replaced by HasPool)
+# Numeric features
 NUMERIC_COLUMNS = (
     "LotFrontage", "LotArea", "OverallQual", "OverallCond", "YearBuilt",
     "YearRemodAdd", "MasVnrArea", "BsmtFinSF1", "BsmtFinSF2", "BsmtUnfSF",
