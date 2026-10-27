@@ -20,16 +20,23 @@ This document serves as the single source of truth for the data preprocessing pi
 * *Note on Production:* The web application/inference pipeline must enforce a hard limit or display a warning for user inputs exceeding 4,000 sq ft, as the model is not trained on mansions of this size.
 
 ## 5. Column Dropping
-The following columns are permanently dropped from the feature set:
-* `Id` (pure identifier)
-* `GarageYrBlt` (redundant with `YearBuilt`, addressed during missing value imputation)
-* **Near-constant columns** (> 97% dominance including structural NAs):
-  * `Street`
-  * `Utilities`
-  * `Condition2`
-  * `RoofMatl`
-  * `Heating`
-  * `PoolQC`
+
+To reduce noise, eliminate redundant metadata, and handle near-constant features, specific columns are dropped at distinct stages of the data workflow:
+
+### 5.1. Metadata and Target Separation (Pre-Pipeline)
+* **`Id`**: Treated as a primary identifier for tracking and submission generation. It contains no predictive signal for housing valuation and is separated from the feature matrix at the data loading stage before entering the scikit-learn Pipeline. This ensures compatibility with web form inference where an ID is not present.
+* **`SalePrice`**: The target variable. It is extracted as the target vector ($y$) during training and is entirely absent in the test set and production requests.
+
+### 5.2. Pipeline-Level Dropping (`ColumnDropper`)
+The following features are dropped automatically inside the scikit-learn Pipeline using the `ColumnDropper` transformer due to extreme class imbalance, near-zero variance, or redundancy:
+* **`GarageYrBlt`**: Highly redundant with `YearBuilt` and prone to missing values.
+* **`Street`**: Extremely skewed categorical feature (almost all properties share the same road type).
+* **`Utilities`**: Practically constant across the entire dataset (almost all entries are "AllPub").
+* **`Condition2`**: Redundant with `Condition1` and highly skewed.
+* **`RoofMatl`**: Extremely dominant category ("CompShg"), offering virtually no split variance for models.
+* **`Heating`**: Extremely dominant category ("GasA").
+* **`PoolQC`**: Highly sparse feature where the presence of a pool is already fully captured by `PoolArea`.
+
 
 ## 6. Structural Missing Values Handling (ConditionalImputer)
 
