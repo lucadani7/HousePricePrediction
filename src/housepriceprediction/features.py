@@ -21,6 +21,9 @@ ORDINAL_CATEGORIES = {
     "Functional": ("Sal", "Sev", "Maj2", "Maj1", "Mod", "Min2", "Min1", "Typ"),
 }
 
+# Standard ordinal columns (excluding Functional)
+ORDINAL_COLUMNS = tuple(c for c in ORDINAL_CATEGORIES if c != "Functional")
+
 # Nominal categorical columns (one-hot encoded)
 NOMINAL_COLUMNS = (
     "MSZoning", "LandContour", "LotConfig", "Neighborhood", "Condition1",
