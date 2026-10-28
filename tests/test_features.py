@@ -6,6 +6,7 @@ from housepriceprediction.features import (
     ORDINAL_CATEGORIES,
     NOMINAL_COLUMNS,
     NUMERIC_COLUMNS,
+    DERIVED_COLUMNS,
 )
 from housepriceprediction.transformers import (
     ColumnDropper,
@@ -29,9 +30,10 @@ def test_feature_groups_integrity():
     ordinal_cols = list(ORDINAL_CATEGORIES.keys())
     numeric_cols = list(NUMERIC_COLUMNS)
     nominal_cols = list(NOMINAL_COLUMNS)
+    derived_cols = list(DERIVED_COLUMNS)
 
     all_processed = set(X_trans.columns)
-    all_grouped = set(ordinal_cols) | set(numeric_cols) | set(nominal_cols)
+    all_grouped = set(ordinal_cols) | set(numeric_cols) | set(nominal_cols) | set(derived_cols)
 
     # 1. Total coverage check
     assert all_processed == all_grouped, (

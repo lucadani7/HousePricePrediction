@@ -44,3 +44,6 @@ NUMERIC_COLUMNS = (
     "WoodDeckSF", "OpenPorchSF", "EnclosedPorch", "3SsnPorch", "ScreenPorch",
     "MiscVal", "YrSold", "HasPool"
 )
+
+# Derived features (created by FeatureEngineer when add_derived=True)
+DERIVED_COLUMNS = ("TotalSF", "TotalBath", "TotalPorchSF")

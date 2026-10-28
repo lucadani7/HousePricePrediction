@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 from housepriceprediction.config import DATA_RAW
+from housepriceprediction.features import DERIVED_COLUMNS
 from housepriceprediction.preprocessing import build_preprocessor, make_functional_pipeline
 
 
@@ -54,3 +55,23 @@ def test_build_preprocessor_integration():
 
     # 4. Train and test must produce exactly the same columns, in the same order
     assert list(X_train_trans.columns) == list(X_test_trans.columns)
+
+
+@pytest.mark.skipif(not (DATA_RAW / "train.csv").exists(), reason="Raw data not available")
+def test_build_preprocessor_add_derived_toggle():
+    train_df = pd.read_csv(DATA_RAW / "train.csv", keep_default_na=False, na_values=["NA"])
+    X_train = train_df.drop(columns=["Id", "SalePrice"])
+
+    # Test True
+    prep_true = build_preprocessor(add_derived=True)
+    X_trans_true = prep_true.fit_transform(X_train)
+
+    for col in DERIVED_COLUMNS:
+        assert col in X_trans_true.columns, f"{col} was dropped silently by ColumnTransformer!"
+
+    # Test False
+    prep_false = build_preprocessor(add_derived=False)
+    X_trans_false = prep_false.fit_transform(X_train)
+
+    for col in DERIVED_COLUMNS:
+        assert col not in X_trans_false.columns, f"{col} is present in output when add_derived=False"
