@@ -158,3 +158,21 @@ def test_conditional_imputer_on_real_data():
         assert not transformed_test[col].isna().any(), f"Column {col} still contains missing values!"
 
 
+def test_conditional_imputer_int_column_with_fractional_median():
+    # Regression test: an int64 column with no missing values must not break
+    # when the learned median has decimals (400 and 401 -> median 400.5).
+    df = pd.DataFrame({
+        "TotalBsmtSF": [800, 900],      # both houses have a basement
+        "BsmtFinSF1": [400, 401],       # int64, no NaN, median = 400.5
+        "BsmtQual": ["TA", "Gd"],
+    })
+    assert df["BsmtFinSF1"].dtype == "int64"   # make sure we reproduce the real situation
+
+    imputer = ConditionalImputer(pure_none_cols=[], conditional_groups=[BASEMENT_GROUP])
+    imputer.fit(df)
+    transformed = imputer.transform(df)
+
+    # Existing values must stay exactly the same
+    assert list(transformed["BsmtFinSF1"]) == [400, 401]
+
+

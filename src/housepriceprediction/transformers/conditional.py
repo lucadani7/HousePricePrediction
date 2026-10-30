@@ -138,6 +138,7 @@ class ConditionalImputer(BaseEstimator, TransformerMixin):
 
             # Handle parent column itself when absent/missing
             if is_num:
+                X_out[parent] = X_out[parent].astype(float)
                 mask_parent_absent = absent_mask & X_out[parent].isna()
                 X_out.loc[mask_parent_absent, parent] = absent_num
             else:
@@ -147,6 +148,7 @@ class ConditionalImputer(BaseEstimator, TransformerMixin):
 
             # Process numeric dependents
             for col in group.numeric_cols:
+                X_out[col] = X_out[col].astype(float)
                 mask_absent_col = absent_mask & X_out[col].isna()
                 X_out.loc[mask_absent_col, col] = absent_num
 
