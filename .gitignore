@@ -42,12 +42,12 @@ models/*.joblib
 *.pt
 *.pth
 *.onnx
-models/**
-!models/.gitkeep
-data/**
-!data/.gitkeep
-reports/**
-!reports/.gitkeep
+backend/models/**
+!backend/models/.gitkeep
+backend/data/**
+!backend/data/.gitkeep
+backend/reports/**
+!backend/reports/.gitkeep
 
 # OS
 .DS_Store
