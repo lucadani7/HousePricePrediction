@@ -47,3 +47,22 @@ NUMERIC_COLUMNS = (
 
 # Derived features (created by FeatureEngineer when add_derived=True)
 DERIVED_COLUMNS = ("TotalSF", "TotalBath", "TotalPorchSF")
+
+FORM_FEATURES = (
+    "1stFlrSF",
+    "2ndFlrSF",
+    "TotalBsmtSF",
+    "BsmtFinSF1",
+    "OverallQual",
+    "OverallCond",
+    "KitchenQual",
+    "YearBuilt",
+    "YearRemodAdd",
+    "Neighborhood",
+    "MSZoning",
+    "LotArea",
+    "GarageCars",
+    "FullBath",
+    "HalfBath",
+    "Fireplaces",
+)
