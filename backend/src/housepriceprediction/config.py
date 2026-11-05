@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Final
 
 PROJECT_ROOT: Final = Path(__file__).resolve().parents[2]
+MODELS_DIR: Path = PROJECT_ROOT / "models"
 DATA_RAW: Final = PROJECT_ROOT / "data" / "raw"
 TXT_FILE: Final = PROJECT_ROOT / "data" / "raw" / "data_description.txt"
 
