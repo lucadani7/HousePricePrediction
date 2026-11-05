@@ -18,7 +18,6 @@ dependencies = [
 ]
 
 [project.scripts]
-housepriceprediction = "housepriceprediction:main"
 train = "housepriceprediction.train:main"
 
 [build-system]
