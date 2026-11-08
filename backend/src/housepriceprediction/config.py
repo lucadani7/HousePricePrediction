@@ -5,6 +5,7 @@ PROJECT_ROOT: Final = Path(__file__).resolve().parents[2]
 MODELS_DIR: Path = PROJECT_ROOT / "models"
 DATA_RAW: Final = PROJECT_ROOT / "data" / "raw"
 TXT_FILE: Final = PROJECT_ROOT / "data" / "raw" / "data_description.txt"
+DATABASE_PATH: Final[Path] = PROJECT_ROOT / "data" / "predictions.db"
 
 TARGET: Final = "SalePrice"
 RANDOM_STATE: Final = 42

@@ -1,4 +1,5 @@
-from typing import Literal
+from datetime import datetime
+from typing import Literal, Any
 import pandas as pd
 from pydantic import BaseModel, Field, model_validator
 
@@ -54,4 +55,12 @@ class HouseFeatures(BaseModel):
 
 class PredictionResponse(BaseModel):
     """Response schema returning the predicted house price in dollars."""
+    predicted_price: float
+
+
+class PredictionRead(BaseModel):
+    """Schema for reading a past prediction record from the database."""
+    id: int
+    created_at: datetime
+    features: dict[str, Any]
     predicted_price: float

@@ -1,6 +1,13 @@
+from collections.abc import Generator
 from typing import Any, Callable
 
 import pytest
+from fastapi.testclient import TestClient
+from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel.pool import StaticPool
+
+from housepriceprediction.api.database import get_session
+from housepriceprediction.api.main import MODEL_PATH, app
 
 
 @pytest.fixture
@@ -33,3 +40,31 @@ def valid_house() -> Callable[..., dict[str, Any]]:
         return house
 
     return make
+
+
+@pytest.fixture
+def client() -> Generator[TestClient, None, None]:
+    """TestClient for the API, backed by an empty in-memory database.
+
+    Requests made in tests never touch data/predictions.db. Skips the test when
+    the trained model is missing, because the app loads it at startup.
+    """
+    if not MODEL_PATH.exists():
+        pytest.skip("model.joblib not found. Run 'uv run train' first.")
+
+    test_engine = create_engine(
+        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+    )
+    SQLModel.metadata.create_all(test_engine)
+
+    def override_get_session() -> Generator[Session, None, None]:
+        with Session(test_engine) as session:
+            yield session
+
+    app.dependency_overrides[get_session] = override_get_session
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        # Runs even when the test fails, so the override never leaks into other tests.
+        app.dependency_overrides.clear()

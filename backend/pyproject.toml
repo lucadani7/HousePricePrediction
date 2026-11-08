@@ -17,6 +17,7 @@ dependencies = [
     "pydantic>=2.14.3",
     "scikit-learn>=1.9.1",
     "seaborn>=0.13.2",
+    "sqlmodel>=0.0.48",
     "uvicorn[standard]>=0.54.0",
     "xgboost>=3.4.1",
 ]

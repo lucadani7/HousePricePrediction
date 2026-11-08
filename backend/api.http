@@ -92,3 +92,6 @@ Content-Type: application/json
   "half_bath": 1,
   "fireplaces": 1
 }
+
+### 6. Getting the history of recent predictions
+GET http://localhost:8000/predictions?limit=5
