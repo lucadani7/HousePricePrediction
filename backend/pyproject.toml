@@ -8,12 +8,16 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
+    "fastapi>=0.162.0",
+    "httpx2>=2.16.0",
     "joblib>=1.6.0",
     "matplotlib>=3.11.2",
     "numpy>=2.5.4",
-    "pandas>=3.1.0",
+    "pandas==3.1.1",
+    "pydantic>=2.14.3",
     "scikit-learn>=1.9.1",
     "seaborn>=0.13.2",
+    "uvicorn[standard]>=0.54.0",
     "xgboost>=3.4.1",
 ]
 
@@ -26,6 +30,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "ipykernel>=7.4.0",
     "pandas-stubs>=3.0.5.260914",
     "pytest>=9.1.1",
