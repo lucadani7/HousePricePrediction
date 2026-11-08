@@ -1,68 +1,45 @@
-from typing import Any
+from typing import Any, Callable
+
 import pytest
 from pydantic import ValidationError
 
 from housepriceprediction.api.schemas import HouseFeatures
 from housepriceprediction.features import FORM_FEATURES
 
-
-def valid_house(**overrides: Any) -> dict[str, Any]:
-    """Helper function returning a valid dictionary of 16 house features,
-    allowing selective overrides for test cases.
-    """
-    house: dict[str, Any] = {
-        "first_floor_sf": 1200,
-        "second_floor_sf": 800,
-        "total_bsmt_sf": 1000,
-        "bsmt_fin_sf1": 600,
-        "overall_quality": 7,
-        "overall_condition": 5,
-        "kitchen_quality": "Gd",
-        "year_built": 2005,
-        "year_remod_add": 2005,
-        "neighborhood": "CollgCr",
-        "ms_zoning": "RL",
-        "lot_area": 9500,
-        "garage_cars": 2,
-        "full_bath": 2,
-        "half_bath": 1,
-        "fireplaces": 1,
-    }
-    house.update(overrides)
-    return house
+HouseFactory = Callable[..., dict[str, Any]]
 
 
-def test_house_features_valid() -> None:
+def test_house_features_valid(valid_house: HouseFactory) -> None:
     features = HouseFeatures(**valid_house())
     df = features.to_model_frame()
     assert list(df.columns) == list(FORM_FEATURES)
 
 
-def test_invalid_zoning() -> None:
+def test_invalid_zoning(valid_house: HouseFactory) -> None:
     with pytest.raises(ValidationError):
         HouseFeatures(**valid_house(ms_zoning="I"))
 
 
-def test_invalid_neighborhood() -> None:
+def test_invalid_neighborhood(valid_house: HouseFactory) -> None:
     with pytest.raises(ValidationError):
         HouseFeatures(**valid_house(neighborhood="Atlantis"))
 
 
-def test_invalid_overall_quality() -> None:
+def test_invalid_overall_quality(valid_house: HouseFactory) -> None:
     with pytest.raises(ValidationError):
         HouseFeatures(**valid_house(overall_quality=11))
 
 
-def test_remod_year_before_built() -> None:
+def test_remod_year_before_built(valid_house: HouseFactory) -> None:
     with pytest.raises(ValidationError):
         HouseFeatures(**valid_house(year_built=2010, year_remod_add=2005))
 
 
-def test_basement_fin_exceeds_total() -> None:
+def test_basement_fin_exceeds_total(valid_house: HouseFactory) -> None:
     with pytest.raises(ValidationError):
         HouseFeatures(**valid_house(total_bsmt_sf=500, bsmt_fin_sf1=600))
 
 
-def test_square_footage_exceeds_limit() -> None:
+def test_square_footage_exceeds_limit(valid_house: HouseFactory) -> None:
     with pytest.raises(ValidationError):
         HouseFeatures(**valid_house(first_floor_sf=2500, second_floor_sf=2000))

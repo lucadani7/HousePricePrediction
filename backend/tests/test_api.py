@@ -1,66 +1,45 @@
+from typing import Any, Callable
+
+import pytest
 from fastapi.testclient import TestClient
-from housepriceprediction.api.main import app
+
+from housepriceprediction.api.main import MODEL_PATH, app
+
+HouseFactory = Callable[..., dict[str, Any]]
+
+# The app loads model.joblib at startup: without it, skip instead of failing.
+pytestmark = pytest.mark.skipif(
+    not MODEL_PATH.exists(), reason="model.joblib not found. Run 'uv run train' first."
+)
 
 
 def test_health_check() -> None:
-    """Checks health check route and teh fact the model is correctly loaded."""
+    """The health route answers and reports that the model is loaded."""
     with TestClient(app) as client:
         response = client.get("/health")
         assert response.status_code == 200
         assert response.json() == {"status": "ok"}
 
 
-def test_predict_endpoint_success() -> None:
-    """Checks that POST request is valid to /predict returns 200 status and a price."""
-    payload = {
-        "first_floor_sf": 1200,
-        "second_floor_sf": 800,
-        "total_bsmt_sf": 1000,
-        "bsmt_fin_sf1": 600,
-        "overall_quality": 7,
-        "overall_condition": 5,
-        "kitchen_quality": "Gd",
-        "year_built": 2005,
-        "year_remod_add": 2005,
-        "neighborhood": "CollgCr",
-        "ms_zoning": "RL",
-        "lot_area": 9500,
-        "garage_cars": 2,
-        "full_bath": 2,
-        "half_bath": 1,
-        "fireplaces": 1,
-    }
-
+def test_predict_endpoint_success(valid_house: HouseFactory) -> None:
+    """A valid house returns 200 and a positive price."""
     with TestClient(app) as client:
-        response = client.post("/predict", json=payload)
+        response = client.post("/predict", json=valid_house())
         assert response.status_code == 200
         data = response.json()
-        assert "predicted_price" in data
         assert isinstance(data["predicted_price"], float)
         assert data["predicted_price"] > 0
 
 
-def test_predict_endpoint_validation_error() -> None:
-    """Checks that invalid data sent to /predict are refused with 422 code."""
-    payload = {
-        "first_floor_sf": 1200,
-        "second_floor_sf": 800,
-        "total_bsmt_sf": 1000,
-        "bsmt_fin_sf1": 600,
-        "overall_quality": 15,  # Invalid: max is 10
-        "overall_condition": 5,
-        "kitchen_quality": "Gd",
-        "year_built": 2005,
-        "year_remod_add": 2005,
-        "neighborhood": "CollgCr",
-        "ms_zoning": "RL",
-        "lot_area": 9500,
-        "garage_cars": 2,
-        "full_bath": 2,
-        "half_bath": 1,
-        "fireplaces": 1,
-    }
-
+def test_predict_endpoint_field_validation_error(valid_house: HouseFactory) -> None:
+    """A value outside a field's range is rejected with 422."""
     with TestClient(app) as client:
-        response = client.post("/predict", json=payload)
+        response = client.post("/predict", json=valid_house(overall_quality=15))
+        assert response.status_code == 422
+
+
+def test_predict_endpoint_cross_field_validation_error(valid_house: HouseFactory) -> None:
+    """A house that breaks a cross-field rule is rejected with 422."""
+    with TestClient(app) as client:
+        response = client.post("/predict", json=valid_house(year_built=2010, year_remod_add=2005))
         assert response.status_code == 422
