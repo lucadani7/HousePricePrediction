@@ -5,6 +5,9 @@ An end-to-end machine learning project: exploratory analysis, a tested scikit-le
 pipeline, a comparison of linear and tree models, error analysis and interpretation, and a web app
 built with **FastAPI** and **Next.js**.
 
+**Live demo:** [housepriceprediction.getastrobyte.com](https://housepriceprediction.getastrobyte.com)
+(the API runs on a free instance that sleeps when idle, so the first estimate can take up to a minute)
+
 <!-- Screenshot of the app: add docs/screenshot.png and uncomment the line below -->
 <!-- ![The web app](docs/screenshot.png) -->
 
@@ -139,6 +142,17 @@ API runs elsewhere.
 cd backend && uv run pytest     # tests that need the data or the trained model are skipped without them
 cd frontend && pnpm lint
 ```
+
+## Deployment
+
+| Part | Host | Settings |
+|---|---|---|
+| Frontend | Vercel (Hobby) | root directory `frontend`, environment variable `BACKEND_URL` = the API address (set before the build: rewrites are resolved at build time) |
+| API | Render (free) | root directory `backend`, build `uv sync --frozen --no-dev`, start `uv run --frozen --no-dev uvicorn housepriceprediction.api.main:app --host 0.0.0.0 --port $PORT`, `PYTHON_VERSION=3.13.13` |
+| Domain | Cloudflare DNS | CNAME to the value shown by Vercel, set to **DNS only** |
+
+The trained model (`backend/models/model.joblib`) is committed so the API can start without the
+training data. On the free Render instance the SQLite history is reset whenever the service restarts.
 
 ## API
 

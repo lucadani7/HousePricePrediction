@@ -9,10 +9,14 @@ import PredictionForm from "@/app/components/PredictionForm";
 import RecentPredictions from "@/app/components/RecentPredictions";
 import ThemeToggle from "@/app/components/ThemeToggle";
 
+// After this delay a request is probably waiting for the free backend to wake up.
+const SLOW_REQUEST_MS = 4000;
+
 export default function Home() {
   const [price, setPrice] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSlow, setIsSlow] = useState<boolean>(false);
   const [predictionHistory, setPredictionHistory] = useState<PredictionRecord[]>([]);
 
   const fetchHistory = async () => {
@@ -24,6 +28,8 @@ export default function Home() {
     }
   };
 
+  // Loading the history on page open also wakes up the free backend (it sleeps after
+  // 15 minutes without traffic), so it is usually ready by the time the form is submitted.
   useEffect(() => {
     const loadInitialData = async () => {
       try {
@@ -40,6 +46,7 @@ export default function Home() {
     setIsLoading(true);
     setError(null);
     setPrice(null);
+    const slowTimer = setTimeout(() => setIsSlow(true), SLOW_REQUEST_MS);
 
     try {
       const result = await predictPrice(features);
@@ -48,6 +55,8 @@ export default function Home() {
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An unknown error occurred.");
     } finally {
+      clearTimeout(slowTimer);
+      setIsSlow(false);
       setIsLoading(false);
     }
   };
@@ -68,6 +77,15 @@ export default function Home() {
             </p>
           </div>
         </header>
+
+        {isLoading && isSlow && (
+          <p
+            role="status"
+            className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-center text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300"
+          >
+            The free server is waking up after a period of inactivity. This can take up to a minute.
+          </p>
+        )}
 
         <PredictionResult price={price} error={error} />
 

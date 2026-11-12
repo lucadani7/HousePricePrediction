@@ -2,6 +2,9 @@ import {PredictionRecord} from "@/app/interfaces/PredictionRecord";
 import {PredictionResponse} from "@/app/interfaces/PredictionResponse";
 import {HouseFeatures} from "@/app/interfaces/HouseFeatures";
 
+// Gateway errors returned while the free backend instance is waking up or restarting.
+const SERVER_UNAVAILABLE_STATUSES = [502, 503, 504];
+
 interface ValidationIssue {
   loc: (string | number)[];
   msg: string;
@@ -38,6 +41,10 @@ export async function predictPrice(features: HouseFeatures): Promise<PredictionR
     },
     body: JSON.stringify(features),
   });
+
+  if (SERVER_UNAVAILABLE_STATUSES.includes(response.status)) {
+    throw new Error("The server is still starting up. Please try again in a few seconds.");
+  }
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
