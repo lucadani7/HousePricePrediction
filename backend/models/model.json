@@ -1,0 +1,26 @@
+{
+    "trained_at": "2026-11-12T00:16:39.317542+00:00",
+    "cv_rmsle_mean": 0.122,
+    "cv_rmsle_std": 0.0062,
+    "final_lasso_alpha": 0.003,
+    "form_features": [
+        "1stFlrSF",
+        "2ndFlrSF",
+        "TotalBsmtSF",
+        "BsmtFinSF1",
+        "OverallQual",
+        "OverallCond",
+        "KitchenQual",
+        "YearBuilt",
+        "YearRemodAdd",
+        "Neighborhood",
+        "MSZoning",
+        "LotArea",
+        "GarageCars",
+        "FullBath",
+        "HalfBath",
+        "Fireplaces"
+    ],
+    "n_samples": 1456,
+    "sklearn_version": "1.9.1"
+}

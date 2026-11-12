@@ -66,3 +66,7 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# The trained model is needed for deployment (it is not the Kaggle data)
+!backend/models/model.joblib
+!backend/models/model.json
